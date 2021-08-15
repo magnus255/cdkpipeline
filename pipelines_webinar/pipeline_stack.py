@@ -35,9 +35,8 @@ class PipelineStack(core.Stack):
             )
         )
         stage = pipeline.add_stage(stage_name='Wait')
-        stage.add_actions([
-            cpations.ManualApprovalAction(action_name='NeedAprove')
-        ])
+        stage.add_manual_approval_action(action_name='Wait')
+
         pipeline.add_application_stage(
             WebServiceStage(
                 self,
