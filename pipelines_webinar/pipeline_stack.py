@@ -34,12 +34,15 @@ class PipelineStack(core.Stack):
                 synth_command='cdk synth',
             )
         )
-
+        stage = pipeline.add_stage(stage_name='Wait')
+        stage.add_actions([
+            cpations.ManualApprovalAction(action_name='NeedAprove')
+        ])
         pipeline.add_application_stage(
             WebServiceStage(
                 self,
                 'Pre-prod',
                 env={'account': '333581294367', 'region': 'eu-central-1'}
             ),
-            manual_approvals=True,
+            # manual_approvals=True,
         )
