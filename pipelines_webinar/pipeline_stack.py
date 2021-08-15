@@ -4,6 +4,7 @@ from aws_cdk import (
     aws_codepipeline_actions as cpations,
     pipelines,
 )
+from .webservice_stage import WebServiceStage
 
 
 class PipelineStack(core.Stack):
@@ -13,7 +14,7 @@ class PipelineStack(core.Stack):
         source_artifact = codepipeline.Artifact()
         cloud_assymble_artifact = codepipeline.Artifact()
 
-        pipelines.CdkPipeline(
+        pipeline = pipelines.CdkPipeline(
             self,
             'Pipeline',
             cloud_assembly_artifact=cloud_assymble_artifact,
@@ -31,5 +32,13 @@ class PipelineStack(core.Stack):
                 cloud_assembly_artifact=cloud_assymble_artifact,
                 install_command='npm install -g aws-cdk && pip install -r requirements.txt',
                 synth_command='cdk synth',
+            )
+        )
+
+        pipeline.add_application_stage(
+            WebServiceStage(
+                self,
+                'Pre-prod',
+                env={'account': '333581294367', 'region': 'eu-central-1'}
             )
         )
