@@ -11,8 +11,8 @@ class PipelineStack(core.Stack):
     def __init__(self, scope: core.Construct, id: str, **kwargs):
         super().__init__(scope, id, **kwargs)
 
-        source_artifact = codepipeline.Artifact()
-        cloud_assymble_artifact = codepipeline.Artifact()
+        source_artifact = codepipeline.Artifact('artifact1')
+        cloud_assymble_artifact = codepipeline.Artifact('artifact2')
 
         pipeline = pipelines.CdkPipeline(
             self,
@@ -40,5 +40,6 @@ class PipelineStack(core.Stack):
                 self,
                 'Pre-prod',
                 env={'account': '333581294367', 'region': 'eu-central-1'}
-            )
+            ),
+            manual_approvals=True,
         )
