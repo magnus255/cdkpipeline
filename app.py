@@ -12,12 +12,9 @@ from aws_cdk import core
 from pipelines_webinar.pipelines_webinar_stack import PipelinesWebinarStack
 from pipelines_webinar.pipeline_stack import PipelineStack
 
+
 app = core.App()
-env = dict(
-    account='333581294367',
-    region='eu-central-1'
-)
-PipelinesWebinarStack(app, "PipelinesWebinarStack", env=env)
-PipelineStack(app, 'PipelineStack', env=env)
+PipelinesWebinarStack(app, "PipelinesWebinarStack")
+PipelineStack(app, 'PipelineStack', env={'account': '333581294367', 'region': 'eu-central-1'})
 
 app.synth()
