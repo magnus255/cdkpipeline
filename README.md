@@ -61,4 +61,4 @@ Enjoy!
 cdk bootstrap --profile magnus255 --cloudformation-execution-policies arn:aws:iam::aws:policy/AdministratorAccess 
 cdk synth PipelineStack --profile magnus255
 cdk deploy PipelineStack --profile magnus255 
-cdk destroy PipelineStack --profile magnus255
+cdk destroy --profile magnus255 --all
