@@ -1,5 +1,6 @@
+import awsgi
+from w.w.wsgi import application
+
+
 def handler(event, context):
-    return {
-        'body': 'Hello from Lambda v2!',
-        'statusCode': '200',
-    }
+    return awsgi.response(application, event, context)
