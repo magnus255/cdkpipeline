@@ -4,6 +4,7 @@ from aws_cdk import (
     core as cdk,
     aws_lambda as lmb,
     aws_apigateway as apigw,
+    aws_iam as iam
 )
 
 # For consistency with other languages, `cdk` is the preferred import name for
@@ -35,6 +36,7 @@ class PipelinesWebinarStack(cdk.Stack):
             description='Simple web',
             handler=handler.current_version
         )
+        handler.grant_invoke(iam.ServicePrincipal('apigateway.amazonaws.com'))
 
         self.url_output = core.CfnOutput(
             self,
