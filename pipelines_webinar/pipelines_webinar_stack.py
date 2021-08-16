@@ -40,6 +40,13 @@ class PipelinesWebinarStack(cdk.Stack):
             runtime=lmb.Runtime.PYTHON_3_8,
             handler='handler.handler',
         )
+        lmb.CfnPermission(
+            scope,
+            "CrossAccountInvocationPermission",
+            action="lambda:InvokeFunction",
+            function_name=handler.function_name,
+            principal="arn:aws:iam::333581294367:policy/InvokeLambdaPolicy",
+        )
 
         alias = lmb.Alias(self, 'HandlerAlias', alias_name='LambdaAlias', version=handler.current_version)
 
