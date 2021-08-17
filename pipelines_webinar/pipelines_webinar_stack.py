@@ -36,7 +36,6 @@ class PipelinesWebinarStack(cdk.Stack):
             description='Simple web',
             handler=handler.current_version
         )
-        handler.grant_invoke(iam.ServicePrincipal('apigateway.amazonaws.com'))
 
         self.url_output = core.CfnOutput(
             self,

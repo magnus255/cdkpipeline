@@ -1,10 +1,11 @@
-import awsgi
-from w.w.wsgi import application
+from fastapi import FastAPI
+from mangum import Mangum
+
+app = FastAPI()
 
 
-def handler(event, context):
-    x = awsgi.response(application, event, context)
-    return {
-        'body': x,
-        'statusCode': '200',
-    }
+@app.get("/")
+def read_root():
+    return {"Hello": "World"}
+
+handler = Mangum(app)
