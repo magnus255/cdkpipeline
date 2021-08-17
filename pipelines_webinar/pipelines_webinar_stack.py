@@ -16,13 +16,16 @@ from aws_cdk import core
 
 class PipelinesWebinarStack(cdk.Stack):
 
-    def __init__(self, scope: cdk.Construct, construct_id: str, **kwargs) -> None:
+    def __init__(self, scope: cdk.Construct, construct_id: str,
+                 **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         # The code that defines your stack goes here
         this_dir = path.dirname(__file__)
 
-        lambda_role = iam.Role(self, 'LambdaRole', assumed_by=iam.ServicePrincipal("lambda.amazonaws.com"))
+        lambda_role = iam.Role(self, 'LambdaRole',
+                               assumed_by=iam.ServicePrincipal(
+                                   "lambda.amazonaws.com"))
 
         lambda_role.add_to_policy(
             iam.PolicyStatement(
@@ -49,6 +52,16 @@ class PipelinesWebinarStack(cdk.Stack):
             description='Simple web',
             handler=handler.current_version
         )
+
+        gw = apigw.RestApi(self, 'RestGateway',
+                           rest_api_name='Webinar service',
+                           )
+
+        get_widgets_integration = apigateway.LambdaIntegration(handler,
+                                                               request_templates={
+                                                                   "application/json": '{ "statusCode": "200" }'})
+
+        api.root.add_method("GET", get_widgets_integration)
 
         self.url_output = core.CfnOutput(
             self,
