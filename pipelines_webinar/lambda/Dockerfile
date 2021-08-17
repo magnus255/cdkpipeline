@@ -1,11 +1,39 @@
-FROM public.ecr.aws/lambda/python:3.8
+# Define custom function directory
+ARG FUNCTION_DIR="/function"
+
+FROM python:3.8 as build-image
+
+# Include global arg in this stage of the build
+ARG FUNCTION_DIR
+
+# Install aws-lambda-cpp build dependencies
+RUN apt-get update && \
+  apt-get install -y \
+  g++ \
+  make \
+  cmake \
+  unzip \
+  libcurl4-openssl-dev
 
 # Copy function code
-#COPY app.py ${LAMBDA_TASK_ROOT}
-COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN mkdir -p ${FUNCTION_DIR}
+COPY . ${FUNCTION_DIR}
 
-COPY . .
+# Install the function's dependencies
+RUN pip install \
+    --target ${FUNCTION_DIR} \
+        awslambdaric
 
-# Set the CMD to your handler (could also be done as a parameter override outside of the Dockerfile)
+
+FROM python:3.8-slim
+
+# Include global arg in this stage of the build
+ARG FUNCTION_DIR
+# Set working directory to function root directory
+WORKDIR ${FUNCTION_DIR}
+
+# Copy in the built dependencies
+COPY --from=build-image ${FUNCTION_DIR} ${FUNCTION_DIR}
+
+ENTRYPOINT [ "/usr/local/bin/python", "-m", "awslambdaric" ]
 CMD [ "app.handler" ]
