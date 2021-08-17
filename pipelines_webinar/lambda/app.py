@@ -13,6 +13,8 @@ def index():
 
 
 def handler(event, context):
-    c = awsgi.response(app, event, context)
-    print(c)
-    return c
+    # c = awsgi.response(app, event, context)
+    # print(c)
+    # return c
+
+    return event, context
