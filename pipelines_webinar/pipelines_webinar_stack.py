@@ -42,7 +42,7 @@ class PipelinesWebinarStack(cdk.Stack):
 
         handler = lambda_python.PythonFunction(
             self, "Handler",
-            entry=os.path.join(this_dir, 'lambda'),
+            entry=path.join(this_dir, 'lambda'),
             handler="handler",
             # optional, defaults to 'handler'
             runtime=lambda_.Runtime.PYTHON_3_8,
