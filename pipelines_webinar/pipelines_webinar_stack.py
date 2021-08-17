@@ -57,11 +57,11 @@ class PipelinesWebinarStack(cdk.Stack):
                            rest_api_name='Webinar service',
                            )
 
-        get_widgets_integration = apigateway.LambdaIntegration(handler,
+        get_widgets_integration = apigw.LambdaIntegration(handler,
                                                                request_templates={
                                                                    "application/json": '{ "statusCode": "200" }'})
 
-        api.root.add_method("GET", get_widgets_integration)
+        gw.root.add_method("GET", get_widgets_integration)
 
         self.url_output = core.CfnOutput(
             self,
