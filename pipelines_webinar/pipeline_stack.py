@@ -34,8 +34,8 @@ class PipelineStack(core.Stack):
                 synth_command='cdk synth',
             )
         )
-        stage = pipeline.add_stage(stage_name='Wait')
-        stage.add_manual_approval_action(action_name='Wait')
+        # stage = pipeline.add_stage(stage_name='Wait')
+        # stage.add_manual_approval_action(action_name='Wait')
 
         pipeline.add_application_stage(
             WebServiceStage(

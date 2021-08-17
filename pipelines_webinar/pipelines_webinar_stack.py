@@ -7,6 +7,7 @@ from aws_cdk import (
     aws_iam as iam,
     aws_cloudwatch as cloudwatch,
     aws_codedeploy as codedeploy,
+    aws_lambda_python as lambda_python,
 )
 
 # For consistency with other languages, `cdk` is the preferred import name for
@@ -39,19 +40,19 @@ class PipelinesWebinarStack(cdk.Stack):
             )
         )
 
-        handler = lmb.Function(
-            self,
-            'Handler',
-            runtime=lmb.Runtime.PYTHON_3_8,
-            handler='handler.handler',
-            code=lmb.Code.from_asset(path.join(this_dir, 'lambda')),
+        handler = lambda_python.PythonFunction(
+            self, "Handler",
+            entry=os.path.join(this_dir, 'lambda'),
+            handler="handler",
+            # optional, defaults to 'handler'
+            runtime=lambda_.Runtime.PYTHON_3_8,
             role=lambda_role,
         )
 
         alias = lmb.Alias(self, 'Alias',
-            alias_name='Current',
-            version=handler.current_version,
-        )
+                          alias_name='Current',
+                          version=handler.current_version,
+                          )
 
         gw = apigw.LambdaRestApi(
             self,
