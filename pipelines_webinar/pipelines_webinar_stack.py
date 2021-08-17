@@ -4,7 +4,9 @@ from aws_cdk import (
     core as cdk,
     aws_lambda as lmb,
     aws_apigateway as apigw,
-    aws_iam as iam
+    aws_iam as iam,
+    aws_cloudwatch as cloudwatch,
+    aws_codedeploy as codedeploy,
 )
 
 # For consistency with other languages, `cdk` is the preferred import name for
@@ -46,23 +48,37 @@ class PipelinesWebinarStack(cdk.Stack):
             role=lambda_role,
         )
 
+        alias = lmb.Alias(self, 'Alias',
+            alias_name='Current',
+            version=handler.current_version,
+        )
+
         gw = apigw.LambdaRestApi(
             self,
             'Gateway',
             description='Simple web',
-            handler=handler.current_version
+            handler=alias
         )
 
-        gw = apigw.RestApi(self, 'RestGateway',
-                           rest_api_name='Webinar service',
-                           )
+        failure_alarm = cloudwatch.Alarm(
+            self, 'Failure Alarm',
+            metric=cloudwatch.Metric(
+                metric_name='5XXError',
+                namespace='AWS/ApiGateway',
+                dimensions=dict(
+                    ApiName='Gateway'
+                ),
+                statistic='Sum',
+                period=core.Duration.minutes(1),
+            ),
+            threshold=1,
+            evaluation_periods=1
+        )
 
-        get_widgets_integration = apigw.LambdaIntegration(handler,
-                                                               request_templates={
-                                                                   "application/json": '{ "statusCode": "200" }'})
-
-        gw.root.add_method("GET", get_widgets_integration)
-
+        codedeploy.LambdaDeploymentGroup(self, 'DeploymentGroup',
+                                         alias=alias,
+                                         deployment_config=codedeploy.LambdaDeploymentConfig.ALL_AT_ONCE,
+                                         alarms=[failure_alarm])
         self.url_output = core.CfnOutput(
             self,
             'Url',
