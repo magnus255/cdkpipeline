@@ -22,12 +22,25 @@ class PipelinesWebinarStack(cdk.Stack):
         # The code that defines your stack goes here
         this_dir = path.dirname(__file__)
 
+        lambda_role = iam.Role(self, 'LambdaRole', assumed_by=iam.ServicePrincipal("lambda.amazonaws.com"))
+
+        lambda_role.add_to_policy(
+            iam.PolicyStatement(
+                effect=iam.Effect.ALLOW,
+                resources=['*'],
+                actions=[
+                    "lambda:InvokeFunction"
+                ]
+            )
+        )
+
         handler = lmb.Function(
             self,
             'Handler',
             runtime=lmb.Runtime.PYTHON_3_8,
             handler='handler.handler',
-            code=lmb.Code.from_asset(path.join(this_dir, 'lambda'))
+            code=lmb.Code.from_asset(path.join(this_dir, 'lambda')),
+            role=lambda_role,
         )
 
         gw = apigw.LambdaRestApi(
