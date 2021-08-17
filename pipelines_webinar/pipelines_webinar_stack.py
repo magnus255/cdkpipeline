@@ -94,8 +94,8 @@ class PipelinesWebinarStack(cdk.Stack):
         #                                  alias=alias,
         #                                  deployment_config=codedeploy.LambdaDeploymentConfig.ALL_AT_ONCE,
         #                                  alarms=[failure_alarm])
-        self.url_output = core.CfnOutput(
-            self,
-            'Url',
-            value=base_api.url
+
+        core.CfnOutput(
+            self, "EndpointUrl", value=base_api.api_endpoint,
+            export_name="webinarApiUrl"
         )
