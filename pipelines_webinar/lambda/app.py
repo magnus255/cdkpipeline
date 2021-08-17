@@ -13,14 +13,4 @@ def index():
 
 
 def handler(event, context):
-    # c = awsgi.response(app, event, context)
-    # print(c)
-    # return c
-    print(context)
-    return {
-        'statusCode': "200",
-        'body': {
-            'x': event,
-            'y': context
-        },
-    }
+    return awsgi.response(app, event, context)
