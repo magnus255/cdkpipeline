@@ -5,9 +5,8 @@ from aws_cdk import (
     core as cdk,
     aws_lambda as lmb,
     aws_apigateway as apigw,
-    aws_iam as iam,
-    aws_cloudwatch as cloudwatch,
-    aws_codedeploy as codedeploy,
+    aws_apigatewayv2 as apigw,
+    aws_apigatewayv2_integrations as apigw_integration,
 )
 
 # For consistency with other languages, `cdk` is the preferred import name for
@@ -60,12 +59,21 @@ class PipelinesWebinarStack(cdk.Stack):
                           version=handler.current_version,
                           )
 
-        gw = apigw.LambdaRestApi(
+        base_api = apigw.HttpApi(
             self,
-            'Gateway',
-            description='Simple web',
-            handler=alias
+            "FastAPIProxyGateway",
+            api_name="FastAPIProxyGateway",
+            default_integration=apigw_integration.LambdaProxyIntegration(
+                handler=alias
+            ),
         )
+        #
+        # gw = apigw.LambdaRestApi(
+        #     self,
+        #     'Gateway',
+        #     description='Simple web',
+        #     handler=alias
+        # )
 
         # failure_alarm = cloudwatch.Alarm(
         #     self, 'Failure Alarm',
@@ -89,5 +97,5 @@ class PipelinesWebinarStack(cdk.Stack):
         self.url_output = core.CfnOutput(
             self,
             'Url',
-            value=gw.url
+            value=base_api.url
         )
