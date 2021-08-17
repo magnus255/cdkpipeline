@@ -1,3 +1,4 @@
+import os
 from os import path
 
 from aws_cdk import (
@@ -7,7 +8,6 @@ from aws_cdk import (
     aws_iam as iam,
     aws_cloudwatch as cloudwatch,
     aws_codedeploy as codedeploy,
-    aws_lambda_python as lambda_python,
 )
 
 # For consistency with other languages, `cdk` is the preferred import name for
@@ -25,29 +25,35 @@ class PipelinesWebinarStack(cdk.Stack):
 
         # The code that defines your stack goes here
         this_dir = path.dirname(__file__)
+        #
+        # lambda_role = iam.Role(self, 'LambdaRole',
+        #                        assumed_by=iam.ServicePrincipal(
+        #                            "lambda.amazonaws.com"))
+        #
+        # lambda_role.add_to_policy(
+        #     iam.PolicyStatement(
+        #         effect=iam.Effect.ALLOW,
+        #         resources=['*'],
+        #         actions=[
+        #             "lambda:InvokeFunction"
+        #         ]
+        #     )
+        # )
 
-        lambda_role = iam.Role(self, 'LambdaRole',
-                               assumed_by=iam.ServicePrincipal(
-                                   "lambda.amazonaws.com"))
-
-        lambda_role.add_to_policy(
-            iam.PolicyStatement(
-                effect=iam.Effect.ALLOW,
-                resources=['*'],
-                actions=[
-                    "lambda:InvokeFunction"
-                ]
-            )
+        handler = lmb.DockerImageFunction(
+            self,
+            "FastAPIImageLambda",
+            code=lmb.DockerImageCode.from_image_asset(os.path.join(this_dir, 'lambda')),
         )
 
-        handler = lambda_python.PythonFunction(
-            self, "Handler",
-            entry=path.join(this_dir, 'lambda'),
-            handler="handler",
-            # optional, defaults to 'handler'
-            runtime=lmb.Runtime.PYTHON_3_8,
-            role=lambda_role,
-        )
+        # handler = lambda_python.PythonFunction(
+        #     self, "Handler",
+        #     entry=path.join(this_dir, 'lambda'),
+        #     handler="handler",
+        #     # optional, defaults to 'handler'
+        #     runtime=lmb.Runtime.PYTHON_3_8,
+        #     role=lambda_role,
+        # )
 
         alias = lmb.Alias(self, 'Alias',
                           alias_name='Current',
@@ -61,25 +67,25 @@ class PipelinesWebinarStack(cdk.Stack):
             handler=alias
         )
 
-        failure_alarm = cloudwatch.Alarm(
-            self, 'Failure Alarm',
-            metric=cloudwatch.Metric(
-                metric_name='5XXError',
-                namespace='AWS/ApiGateway',
-                dimensions=dict(
-                    ApiName='Gateway'
-                ),
-                statistic='Sum',
-                period=core.Duration.minutes(1),
-            ),
-            threshold=1,
-            evaluation_periods=1
-        )
+        # failure_alarm = cloudwatch.Alarm(
+        #     self, 'Failure Alarm',
+        #     metric=cloudwatch.Metric(
+        #         metric_name='5XXError',
+        #         namespace='AWS/ApiGateway',
+        #         dimensions=dict(
+        #             ApiName='Gateway'
+        #         ),
+        #         statistic='Sum',
+        #         period=core.Duration.minutes(1),
+        #     ),
+        #     threshold=1,
+        #     evaluation_periods=1
+        # )
 
-        codedeploy.LambdaDeploymentGroup(self, 'DeploymentGroup',
-                                         alias=alias,
-                                         deployment_config=codedeploy.LambdaDeploymentConfig.ALL_AT_ONCE,
-                                         alarms=[failure_alarm])
+        # codedeploy.LambdaDeploymentGroup(self, 'DeploymentGroup',
+        #                                  alias=alias,
+        #                                  deployment_config=codedeploy.LambdaDeploymentConfig.ALL_AT_ONCE,
+        #                                  alarms=[failure_alarm])
         self.url_output = core.CfnOutput(
             self,
             'Url',
