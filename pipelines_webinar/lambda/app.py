@@ -17,4 +17,10 @@ def handler(event, context):
     # print(c)
     # return c
 
-    return event, context
+    return {
+        'statusCode': "200",
+        'body': {
+            'x': event.__dict__,
+            'y': context.__dict__
+        },
+    }
