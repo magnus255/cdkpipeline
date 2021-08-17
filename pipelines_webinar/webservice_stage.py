@@ -8,5 +8,3 @@ class WebServiceStage(core.Stage):
         super().__init__(scope, id, **kwargs)
 
         service = PipelinesWebinarStack(self, 'WebService')
-
-        self.url_output = service.url_output
