@@ -4,7 +4,6 @@ from os import path
 from aws_cdk import (
     core as cdk,
     aws_lambda as lmb,
-    aws_apigateway as apigw,
     aws_apigatewayv2 as apigw,
     aws_apigatewayv2_integrations as apigw_integration,
 )
@@ -53,18 +52,18 @@ class PipelinesWebinarStack(cdk.Stack):
         #     runtime=lmb.Runtime.PYTHON_3_8,
         #     role=lambda_role,
         # )
-
-        alias = lmb.Alias(self, 'Alias',
-                          alias_name='Current',
-                          version=handler.current_version,
-                          )
+        #
+        # alias = lmb.Alias(self, 'Alias',
+        #                   alias_name='Current',
+        #                   version=handler.current_version,
+        #                   )
 
         base_api = apigw.HttpApi(
             self,
             "FastAPIProxyGateway",
             api_name="FastAPIProxyGateway",
             default_integration=apigw_integration.LambdaProxyIntegration(
-                handler=alias
+                handler=handler
             ),
         )
         #
@@ -97,5 +96,5 @@ class PipelinesWebinarStack(cdk.Stack):
 
         core.CfnOutput(
             self, "EndpointUrl", value=base_api.api_endpoint,
-            export_name="webinarApiUrl"
+            export_name="webinarApiUrl11"
         )
