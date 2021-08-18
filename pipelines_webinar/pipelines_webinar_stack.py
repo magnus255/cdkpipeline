@@ -4,8 +4,7 @@ from os import path
 from aws_cdk import (
     core as cdk,
     aws_lambda as lmb,
-    aws_apigatewayv2 as apigw,
-    aws_apigatewayv2_integrations as apigw_integration,
+    aws_apigateway as apigw,
 )
 
 # For consistency with other languages, `cdk` is the preferred import name for
@@ -41,7 +40,8 @@ class PipelinesWebinarStack(cdk.Stack):
         handler = lmb.DockerImageFunction(
             self,
             "FastAPIImageLambda",
-            code=lmb.DockerImageCode.from_image_asset(os.path.join(this_dir, 'lambda')),
+            code=lmb.DockerImageCode.from_image_asset(
+                os.path.join(this_dir, 'lambda')),
         )
 
         # handler = lambda_python.PythonFunction(
@@ -58,14 +58,18 @@ class PipelinesWebinarStack(cdk.Stack):
         #                   version=handler.current_version,
         #                   )
 
-        base_api = apigw.HttpApi(
+        base_api = apigw.RestApi(
             self,
-            "FastAPIProxyGateway",
-            api_name="FastAPIProxyGateway",
-            default_integration=apigw_integration.LambdaProxyIntegration(
-                handler=handler
-            ),
+            "WebinarRestApi",
+            rest_api_name="Webinar Rest Api Service",
         )
+
+        get_widgets_integration = apigw.LambdaIntegration(handler,
+                                                          request_templates={
+                                                              "application/json": '{ "statusCode": "200" }'})
+
+        base_api.root.add_method("GET", get_widgets_integration)  # GET /
+
         #
         # gw = apigw.LambdaRestApi(
         #     self,
@@ -95,6 +99,6 @@ class PipelinesWebinarStack(cdk.Stack):
         #                                  alarms=[failure_alarm])
 
         core.CfnOutput(
-            self, "EndpointUrl", value=base_api.api_endpoint,
+            self, "EndpointUrl", value=base_api.url,
             export_name="webinarApiUrl11"
         )
